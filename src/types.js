@@ -1,10 +1,10 @@
 function toInt(x){
-  const xNum = Number(x)
+  const num = Number(x)
 
-  if(!Number.isInteger(xNum)){
+  if(!Number.isInteger(num)){
     throw new TypeError(`${x} is not an int.`)
   }
-  return xNum
+  return num
 }
 
 const TYPES = {
