@@ -1,5 +1,4 @@
 const HTTP = require('http')
-const TYPES = require('./types')
 
 const SYS_ERRORS = {
   'NOT_FOUND':[404,'Not found.'],
@@ -162,72 +161,4 @@ class DotFn{
   }
 }
 
-function getType(part){
-  let typeStr = ''
-  for(let i=part.length-2; i>0; i--){
-    if(part[i] === '<'){
-      break
-    }
-    typeStr = part[i] + typeStr
-  }
-
-  typeStr = typeStr.toUpperCase()
-
-  if(TYPES[typeStr]){
-    return TYPES[typeStr]
-  }
-
-  throw new Error('No such type: ' + typeStr)
-}
-
-function parsePath(path){
-  path = path.split('/')
-  if(path[0] === ''){
-    path.splice(0, 1)
-  }
-
-  let i=0
-  for(const part of path){
-    if(part[0] === ':' && part[part.length-1] === '>'){
-      path[i] = getType(part)
-    }
-    else if(part[0] === ':'){
-      path[i] = true
-    }
-    i++
-  }
-  return path
-}
-
-class Route{
-  constructor(path,fn,options){
-
-    if(options){
-      this.options = options
-    }
-    else{
-      this.options = {}
-    }
-
-    path = parsePath(path)
-    console.log("Path:",path)
-    this.path = path
-    this.fn = fn
-  }
-
-  onSuccess(fn){
-    this._onSuccess = fn
-    return this
-  }
-
-  onError(fn){
-    this._onError = fn
-    return this
-  }
-
-}
-
-module.exports = {
-  Server: DotFn,
-  Route: Route
-}
+module.exports = DotFn

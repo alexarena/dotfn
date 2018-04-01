@@ -1,4 +1,4 @@
-const DotFn = require('../dotfn')
+const DotFn = require('./src')
 
 const Calculator = {
   add:function(a,b){
