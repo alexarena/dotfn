@@ -4,7 +4,7 @@
   "description": "Expose any function over HTTP",
   "main": "src/dotfn.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",

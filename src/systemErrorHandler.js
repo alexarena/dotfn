@@ -3,9 +3,9 @@ const SYS_ERRORS = {
   'DEFAULT':[500, 'An unknown error occured.']
 }
 
-function getMatchingSystemError(e){
-  if(!SYS_ERRORS[e.message]){
-    console.error('Unhandled error: ', e)
+function getMatchingSystemError(e,onUnknown){
+  if(!e || !e.message || !SYS_ERRORS[e.message]){
+    if(onUnknown) onUnknown(e)
     return SYS_ERRORS['DEFAULT']
   }
   return SYS_ERRORS[e.message]

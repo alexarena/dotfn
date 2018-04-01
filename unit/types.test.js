@@ -17,10 +17,24 @@ describe('TYPES.INT', () => {
     expect(TYPES.INT("4")).toBe(4)
   })
 
-  it('throws a TypeError when cast is not possible ', ()=>{
+  it('throws a TypeError when cast from string is not possible ', ()=>{
     const e = new TypeError(`Alex is not an int.`)
     expect(()=>{
       TYPES.INT("Alex")
+    }).toThrow(e)
+  })
+
+  it('throws a TypeError when null is passed', ()=>{
+    const e = new TypeError(`null is not an int.`)
+    expect(()=>{
+      TYPES.INT(null)
+    }).toThrow(e)
+  })
+
+  it('throws a TypeError when undefined is passed', ()=>{
+    const e = new TypeError(`undefined is not an int.`)
+    expect(()=>{
+      TYPES.INT(undefined)
     }).toThrow(e)
   })
 
