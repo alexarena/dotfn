@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/alexarena/dotfn/issues"
   },
-  "homepage": "https://github.com/alexarena/dotfn#readme"
+  "homepage": "https://github.com/alexarena/dotfn#readme",
+  "devDependencies": {
+    "jest": "^22.4.3"
+  }
 }

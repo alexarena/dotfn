@@ -1,33 +1,6 @@
 const HTTP = require('http')
-
-const SYS_ERRORS = {
-  'NOT_FOUND':[404,'Not found.'],
-  'DEFAULT':[500, 'An unknown error occured.']
-}
-
-function getErrorStatusObject(e){
-  if(!SYS_ERRORS[e.message]){
-    console.error('Unhandled error: ', e)
-    return SYS_ERRORS['DEFAULT']
-  }
-  return SYS_ERRORS[e.message]
-}
-
-function isStatusObject(obj){
-  if(!Array.isArray(obj)){
-    return false
-  }
-  if(obj.length !== 2){
-    return false
-  }
-  if(!Number.isInteger(obj[0])){
-    return false
-  }
-  if(typeof(obj[1]) !== 'string'){
-    return false
-  }
-  return true
-}
+const statusObject = require('./statusObject')
+const systemErrorHandler = require('./systemErrorHandler')
 
 function pathsMatch(systemPath,userPath){
 
@@ -78,40 +51,40 @@ class DotFn{
   }
 
   async server(req,res){
-
-    let route = null
+    let onErrorFn = null
     try{
-      route = this.getMatchingRoute(req.url)
+      const route = this.getMatchingRoute(req.url)
+      if(route._onError){
+        onErrorFn = route._onError
+      }
       await this.handleRoute(route,req,res)
     }
     catch(e){
-      let errStatusObj = null
-      if(route && route._onError){
-        const userErrObj = route._onError(e)
-        if(isStatusObject(userErrObj)){
-          errStatusObj = userErrObj
-        }else if(typeof(userErrObj) === 'object'){
-          const userErrStatusObj = userErrObj[e.message]
-          if(userErrStatusObj && isStatusObject(userErrStatusObj)){
-            errStatusObj = userErrStatusObj
-          }
-        }
-
-      }
-
-      if(e instanceof TypeError){
-        errStatusObj = [400,`TypeError: ${e.message}`]
-      }
-
-      if(!errStatusObj){
-         errStatusObj = getErrorStatusObject(e)
-      }
-
-      res.writeHead(errStatusObj[0], {'Content-Type': 'text/plain'})
-      res.write(errStatusObj[1])
+      const errObj = await this.getErrorStatusObject(e,onErrorFn)
+      res.writeHead(errObj[0], {'Content-Type': 'text/plain'})
+      res.write(errObj[1])
     }
 
     res.end()
+  }
+
+  async getErrorStatusObject(e,onError){
+
+    if(e instanceof TypeError){
+      return [400,`TypeError: ${e.message}`]
+    }
+
+    if(!onError){
+      return systemErrorHandler(e)
+    }
+
+    const errRes = await onError(e)
+    const errStatusObj = statusObject.fromErrorHandler(errRes,e)
+    if(errStatusObj){
+      return errStatusObj
+    }
+
+    return systemErrorHandler(null)
   }
 
   async handleRoute(route,req,res){
@@ -155,6 +128,7 @@ class DotFn{
   }
 
   addRoute(r){
+    //TODO: check if instanceof route
     //TODO: handle duplicate routes
     this.routes.push(r)
     return this
