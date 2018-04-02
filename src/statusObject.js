@@ -21,6 +21,10 @@ function fromErrorHandler(obj,e){
     return obj
   }
 
+  if(!e || !e.message || !obj){
+    return null
+  }
+
   if(typeof(obj) === 'object'){
     const status = obj[e.message]
     if(isStatusObject(status)){

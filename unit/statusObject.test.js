@@ -35,5 +35,62 @@ describe('statusObject.isStatusObject(obj)', () => {
 })
 
 describe('statusObject.fromErrorHandler(obj,e)',()=>{
-  
+  it('returns the same status object if a status object is passed',()=>{
+    const obj = [200,'Some error']
+    const res = so.fromErrorHandler(obj) //dont need e
+
+    expect(res).toEqual(obj)
+  })
+
+  it('returns a status object if a map of messages is passed',()=>{
+    const e = new Error("match_me")
+    const obj = {
+        not_match: {not_a:'status object'},
+        match_me: [200,'Matched!']
+    }
+    const res = so.fromErrorHandler(obj,e)
+
+    expect(res).toEqual([200,'Matched!'])
+  })
+
+  it('returns null if map does not have a status obj at that index',()=>{
+    const e = new Error("not_match")
+    const obj = {
+        not_match: {not_a:'status object'},
+        match_me: [200,'Matched!']
+    }
+    const res = so.fromErrorHandler(obj,e)
+
+    expect(res).toEqual(null)
+  })
+
+  it('returns null if theres a map and no e',()=>{
+    const obj = {
+        not_match: {not_a:'status object'},
+        match_me: [200,'Matched!']
+    }
+    const res = so.fromErrorHandler(obj)
+
+    expect(res).toEqual(null)
+  })
+
+  it('returns null if theres a map and no e.message',()=>{
+    const e = {}
+    const obj = {
+        not_match: {not_a:'status object'},
+        match_me: [200,'Matched!']
+    }
+    const res = so.fromErrorHandler(obj,e)
+
+    expect(res).toEqual(null)
+  })
+
+  it('returns null obj is not an obj',()=>{
+    const e = new Error("an_error")
+    const obj = null
+    const res = so.fromErrorHandler(obj,e)
+
+    expect(res).toEqual(null)
+  })
+
 })
